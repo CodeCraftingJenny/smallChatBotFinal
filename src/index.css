@@ -21,7 +21,7 @@ body {
   border-radius: 15px;
   box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1) 
   0 32px 64px -48px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
@@ -84,6 +84,7 @@ body {
   margin-bottom: 90px;
   scrollbar-width: thin;
   scrollbar-color: #a4c9fa transparent;
+  scroll-behavior: smooth;
 }
 
 #chatbot-toggler {
@@ -113,7 +114,7 @@ body {
   bottom: 90px;
   right: 35px;
   width: 420px;
-  overflow: hidden;
+  overflow: visible;
   background: white;
   border-radius: 15px;
   box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1), 0 32px 64px -48px rgba(0, 0, 0, 0.5);
@@ -134,7 +135,7 @@ body {
 .chat-body .message {
   display: flex;
   gap: 10px;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .chat-body .bot-message svg {
@@ -154,8 +155,9 @@ body {
   max-width: 75%;
   padding: 12px 16px;
   word-wrap: break-word;
-  white-space: pre-line;
+  white-space: pre-wrap;
   font-size: 0.95rem;
+  align-self: flex-start;
 }
 
 .chat-body .bot-message .message-text {

@@ -6,8 +6,12 @@ import { companyInfo } from './components/companyInfo';
 
 const App = () => {
   const [chatHistory, setChatHistory] = useState([
+    {
+      role: "assistant",
+      text: "👋 Welcome to the CPABC IT Support Chatbot! This chatbot is designed to assist co-op students with IT-related questions from the External IT Support Manual.\n\nBegin chatting by typing your question, and the chatbot will provide answers based on the manual’s content."
+    },
     { hideInChat: true,
-      role: "model", 
+      role: "assistant", 
       text: companyInfo }
   ]);
 
@@ -15,33 +19,42 @@ const App = () => {
   const chatBodyRef = useRef();
 
   const generateBotResponse = async (history) => {
-    //Helper function to update chat history
     const updateHistory = (text, isError = false) => {
-      setChatHistory(prev => [...prev.filter(msg => msg.text !== "Thinking..."), {role:"model", text, isError }])
-    }
-
-    //formate chat history for API request
-    history = history.map(({role, text}) => ({role, parts: [{text}]}));
-
-    const requestOptions = {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: history })
-    }
-
+      setChatHistory(prev =>
+        [...prev.filter(msg => msg.text !== "Thinking..."), { role: "assistant", text, isError }]
+      );
+    };
+  
+    const messages = history
+      .filter(msg => !msg.hideInChat)
+      .map(({ role, text }) => ({ role, content: text }));
+  
     try {
-      //make API call to get bot response
-      const response = await fetch(import.meta.env.VITE_API_URL, requestOptions);
+      const response = await fetch(
+        `${import.meta.env.VITE_AZURE_OPENAI_ENDPOINT}openai/deployments/${import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${import.meta.env.VITE_AZURE_OPENAI_API_VERSION}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "api-key": import.meta.env.VITE_AZURE_OPENAI_KEY
+          },
+          body: JSON.stringify({
+            messages: messages,
+            max_completion_tokens: 800
+          })
+        }
+      );
+  
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error.message || "Something went wrong!");
-
-      //clean and update chat history with bot response
-      const apiResponseText = data.candidates[0].content.parts[0].text.replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, "$1").trim();
-      updateHistory(apiResponseText);
-    } catch (error) {
-      updateHistory(error.message, true);
+      console.log("Azure OpenAI response:", data);
+      if (!response.ok) throw new Error(data.error?.message || "Something went wrong!");
+  
+      const reply = data.choices[0].message.content?.trim() || "⚠️ No reply received.";      updateHistory(reply);
+    } catch (err) {
+      updateHistory(err.message, true);
     }
-  }
+  };
+  
 
   useEffect(() => {
     //autoscroll
