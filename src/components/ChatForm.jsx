@@ -19,7 +19,7 @@ export const ChatForm = ({ chatHistory, setChatHistory, generateBotResponse }) =
       setChatHistory(history => [...history, { role: "assistant", text: "Thinking..." }]);
 
       // Call function to generate bot response
-      generateBotResponse([...chatHistory, { role: "user", text: `Using the details provided above, please address this query: ${userMessage}` }]);
+      generateBotResponse([...chatHistory, { role: "assistant", text: `Using the details provided above, please address this query: ${userMessage}` }]);
     }, 600);
   };
 

@@ -40,7 +40,7 @@ const App = () => {
           },
           body: JSON.stringify({
             messages: messages,
-            max_completion_tokens: 800
+            max_completion_tokens: 1500
           })
         }
       );
@@ -49,7 +49,8 @@ const App = () => {
       console.log("Azure OpenAI response:", data);
       if (!response.ok) throw new Error(data.error?.message || "Something went wrong!");
   
-      const reply = data.choices[0].message.content?.trim() || "⚠️ No reply received.";      updateHistory(reply);
+      const reply = data.choices[0].message.content?.trim() || "⚠️ No reply received.";   
+         updateHistory(reply);
     } catch (err) {
       updateHistory(err.message, true);
     }
