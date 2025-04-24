@@ -16,10 +16,10 @@ export const ChatForm = ({ chatHistory, setChatHistory, generateBotResponse }) =
     //delay 600 ms before showing the thinking message and response
     setTimeout(() => {
       // Update chat history with "Thinking..." message
-      setChatHistory(history => [...history, { role: "assistant", text: "Thinking..." }]);
+      setChatHistory(history => [...history, { role: "system", text: "Thinking..." }]);
 
       // Call function to generate bot response
-      generateBotResponse([...chatHistory, { role: "assistant", text: `Using the details provided above, please address this query: ${userMessage}` }]);
+      generateBotResponse([...chatHistory, { role: "system", text: `Using the details provided above, please address this query: ${userMessage}` }]);
     }, 600);
   };
 

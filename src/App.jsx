@@ -2,17 +2,17 @@ import React, { useEffect, useRef, useState } from 'react'
 import ChatbotIcon from './components/ChatbotIcon'
 import ChatForm from './components/ChatForm'
 import ChatMessage from './components/ChatMessage';
-import { companyInfo } from './components/companyInfo';
+import {supportManual} from './components/supportManual'
 
 const App = () => {
   const [chatHistory, setChatHistory] = useState([
     {
-      role: "assistant",
+      role: "system",
       text: "👋 Welcome to the CPABC IT Support Chatbot! This chatbot is designed to assist co-op students with IT-related questions from the External IT Support Manual.\n\nBegin chatting by typing your question, and the chatbot will provide answers based on the manual’s content."
     },
     { hideInChat: true,
-      role: "assistant", 
-      text: companyInfo }
+      role: "system", 
+      text: supportManual }
   ]);
 
   const [showChatbot, setShowChatBot] = useState([false]);
@@ -21,13 +21,22 @@ const App = () => {
   const generateBotResponse = async (history) => {
     const updateHistory = (text, isError = false) => {
       setChatHistory(prev =>
-        [...prev.filter(msg => msg.text !== "Thinking..."), { role: "assistant", text, isError }]
+        [...prev.filter(msg => msg.text !== "Thinking..."), { role: "system", text, isError }]
       );
     };
   
-    const messages = history
-      .filter(msg => !msg.hideInChat)
-      .map(({ role, text }) => ({ role, content: text }));
+    const userQuestion = history[history.length - 1]?.text || "";
+  
+    const messages = [
+      {
+        role: "system",
+        content: `You are a helpful IT support assistant for CPABC. Use only the following manual content to answer the user's question. Do not generate extra content or redirect users elsewhere. Only respond with exact content from the manual.\n\n${supportManual}`
+      },
+      {
+        role: "user",
+        content: userQuestion
+      }
+    ];
   
     try {
       const response = await fetch(
@@ -49,14 +58,14 @@ const App = () => {
       console.log("Azure OpenAI response:", data);
       if (!response.ok) throw new Error(data.error?.message || "Something went wrong!");
   
-      const reply = data.choices[0].message.content?.trim() || "⚠️ No reply received.";   
-         updateHistory(reply);
+      const reply = data.choices[0].message.content?.trim() || "⚠️ No reply received.";
+      updateHistory(reply);
     } catch (err) {
       updateHistory(err.message, true);
     }
   };
-  
 
+  
   useEffect(() => {
     //autoscroll
     chatBodyRef.current.scrollTo({top: chatBodyRef.current.scrollHeight, behavior: "smooth"});
